@@ -1,0 +1,15 @@
+{
+  "name": "risk_calculator_backend",
+  "version": "0.0.1",
+  "description": "Server side path of risk calculator app",
+  "main": "server.js",
+  "scripts": {},
+  "keywords": [],
+  "author": {
+    "name": "Andrey Kaptuirn",
+    "email": "andruxa21097@gmail.com",
+    "url": "https://github.com/AndreyKapturin"
+  },
+  "license": "ISC",
+  "type": "module"
+}
