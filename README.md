@@ -2,3 +2,4 @@
 
 ## Стек
 - Express
+- MySQL
