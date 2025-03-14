@@ -2,14 +2,14 @@ import { connection } from "../database/index.js";
 
 export const getAllForObjectGroupById = async (objectGroupId) => {
   const query = `SELECT
-    metricIndicatorsValues.value as metricIndicatorValue,
-    metricIndicators.text as metricIndicatorText,
+    metric_indicators_values.value as metricIndicatorValue,
+    metric_indicators.text as metricIndicatorText,
     metrics.name as metricName,
     metrics.type as metricType
-    FROM metricIndicatorsValues
-    LEFT JOIN metricIndicators ON metricIndicators.id = metricIndicatorsValues.metricIndicatorId
-    LEFT JOIN metrics ON metrics.id = metricIndicators.metricId
-    WHERE metricIndicatorsValues.objectGroupId = ?`;
+    FROM metric_indicators_values
+    LEFT JOIN metric_indicators ON metric_indicators.id = metric_indicators_values.metric_indicator_id
+    LEFT JOIN metrics ON metrics.id = metric_indicators.metric_id
+    WHERE metric_indicators_values.object_group_id = ?`;
   const values = [objectGroupId];
 
    try {
