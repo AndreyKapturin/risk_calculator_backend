@@ -1,7 +1,6 @@
 import express from 'express';
 import path from 'path';
-import { getAllObjectsGroups } from '../controllers/objectsGroupsController.js';
-import { getMetricsForObjectGroupById } from '../controllers/metricsController.js';
+import { getObjectsGroupsList, getObjectsGroupById } from '../controllers/objectsGroupsController.js';
 import { corsMiddleware } from '../middlewares/cors.js';
 export const router = express.Router();
 
@@ -12,7 +11,7 @@ router.get('/', (req, res) => res.sendFile(path.resolve('public', 'index.html'))
 
 // API router
 const apiRouter = express.Router();
-router.use('/apiV1', apiRouter);
+router.use('/api-v1', apiRouter);
 
-apiRouter.get('/groups', getAllObjectsGroups);
-apiRouter.get('/groups/:id/metrics', getMetricsForObjectGroupById);
+apiRouter.get('/objects-groups', getObjectsGroupsList);
+apiRouter.get('/objects-groups/:id', getObjectsGroupById);
