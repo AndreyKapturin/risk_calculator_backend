@@ -9,3 +9,14 @@ export const getAll = async () => {
     throw error;
   }
 };
+
+export const getById = async (objectGroupId) => {
+  try {
+    const query = 'SELECT * FROM objects_groups WHERE id = ? LIMIT 1';
+    const [ [ result ] ] = await connection.execute(query, [objectGroupId]);
+    return result;
+  } catch (error) {
+    console.log('Object groups request from BD error', error);
+    throw error;
+  }
+};
