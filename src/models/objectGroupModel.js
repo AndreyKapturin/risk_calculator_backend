@@ -20,3 +20,12 @@ export const getById = async (objectGroupId) => {
     throw error;
   }
 };
+
+export const createObjectGroup = async ({name, socialDamagePotencialScore, materialDamagePotencialScore, metrics = []}) => {
+  try {
+    const query = 'INSERT INTO objects_groups (name, social_damage_potencial_score, material_damage_potencial_score) VALUES (?, ?, ?)';
+    await connection.execute(query, [ name, socialDamagePotencialScore, materialDamagePotencialScore ])
+  } catch (error) {
+    
+  }
+}
