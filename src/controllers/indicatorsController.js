@@ -1,20 +1,19 @@
-import { connection } from "../database/index.js";
+import { DB } from "../database/index.js";
 
-
-export const updateIndicatorText = async (req, res) => {
+export const updateIndicatorText = (req, res) => {
   const indicatorId = Number(req.params.id);
   const { text } = req.body;
 
   if (Number.isNaN(indicatorId)) {
-    res.status(400).send({ message: 'Параметр "id" имеет неверный формат или отсутствует' });
+    res.status(400).json({ message: 'Параметр "id" имеет неверный формат или отсутствует' });
     return;
   }
 
   try {
-    const [ { affectedRows } ] = await connection.query('UPDATE metric_indicators SET text = ? WHERE id = ?', [ text, indicatorId ]);
+    const { changes } = DB.prepare('UPDATE metric_indicators SET text = ? WHERE id = ?').run(text, indicatorId);
 
-    if (affectedRows === 0) {
-      res.status(404).json({ message: `Не найден индикатор с id ${indicatorId}` });
+    if (changes === 0) {
+      res.status(404).json({ message: `Нет записей в таблицах для индикатора с id ${indicatorId}` });
       return
     }
 
