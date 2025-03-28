@@ -1,98 +1,102 @@
-import { connection } from "../database/index.js";
+import { DB } from "../database/index.js";
 
-export const createMetric = async (req, res) => {
+export const createMetric = (req, res) => {
   const { type, name, indicators } = req.body;
   
   try {
-    const [ { insertId: metricId } ] = await connection.query(`INSERT INTO metrics (type, name) VALUES (?, ?)`, [ type, name ]);
+    const createMetricTransaction = DB.transaction((type, name, indicators) => {
+      const { lastInsertRowid: metricId } = DB.prepare('INSERT INTO metrics (type, name) VALUES (?, ?)').run(type, name);
+      indicators.forEach((i) => {
+        DB.prepare('INSERT INTO metric_indicators (metric_id, text) VALUES (?, ?)').run(metricId, i.text);
+      });
+      return metricId;
+    });
 
-    const indicatorsIds = await Promise.all(indicators.map(async (i) => {
-      const [ { insertId: indicatorId } ] = await connection.query('INSERT INTO metric_indicators (metric_id, text) VALUES (?, ?)', [ metricId, i.text ]);
-      return indicatorId;
-    }));
-
-    res.status(201).json(metricId);
+    const metricId = createMetricTransaction(type, name, indicators);
+    res.status(201).json({ id: metricId });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: 'Ошибка сервера при создании метрики' });
   }
 }
 
-export const getAllMetrics = async (req, res) => {
+export const getAllMetrics = (req, res) => {
   try {
-    const [ metrics ] = await connection.query('SELECT * FROM metrics');
-    const metricsWithIndicators = await Promise.all(metrics.map(async (metric) => {
-      const [ indicators ] = await connection.query('SELECT id, text FROM metric_indicators mi WHERE mi.metric_id = ?', metric.id);
+    const metrics = DB.prepare('SELECT * FROM metrics').all()
+    .map((metric) => {
+      const indicators = DB.prepare('SELECT id, text FROM metric_indicators mi WHERE mi.metric_id = ?').all(metric.id);
       metric.indicators = indicators;
       return metric;
-    }));
-    res.status(200).json(metricsWithIndicators);
+    });
+    res.status(200).json(metrics);
   } catch (error) {
     res.status(500).json({ message: 'Ошибка сервера при получении метрик' });
   }
 }
 
-export const updateMetric = async (req, res) => {
+export const updateMetric = (req, res) => {
   const metricId = Number(req.params.id);
   const { type, name } = req.body;
 
   if (Number.isNaN(metricId)) {
-    res.status(400).send({ message: 'Параметр "id" имеет неверный формат или отсутствует' });
+    res.status(400).json({ message: 'Параметр "id" имеет неверный формат или отсутствует' });
     return;
   }
   
   try {
-    const [ { affectedRows } ] = await connection.query('UPDATE metrics SET type = ?, name = ? WHERE id = ?', [ type, name, metricId ]);
+    const { changes } = DB.prepare('UPDATE metrics SET type = ?, name = ? WHERE id = ?').run(type, name, metricId);
 
-    if (affectedRows > 0) {
-      res.sendStatus(200);
-    } else {
+    if (changes === 0) {
       res.status(404).json({ message: 'Метрика не найдена' });
+      return;
     }
+
+    res.sendStatus(200);
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: 'Ошибка сервера при обновлении метрики' });
   }
 }
 
-export const addIndicatorToMetric = async (req, res) => {
+export const addIndicatorToMetric = (req, res) => {
   const metricId = Number(req.params.id);
   const { text } = req.body;
 
   if (Number.isNaN(metricId)) {
-    res.status(400).send({ message: 'Параметр "id" имеет неверный формат или отсутствует' });
+    res.status(400).json({ message: 'Параметр "id" имеет неверный формат или отсутствует' });
     return;
   }
   
   try {
-    const [ { insertId } ] = await connection.query('INSERT INTO metric_indicators (metric_id, text) VALUES (?, ?)', [ metricId, text ]);
-    res.status(201).json({ id: insertId, text });
+    const { lastInsertRowid } = DB.prepare('INSERT INTO metric_indicators (metric_id, text) VALUES (?, ?)').run(metricId, text);
+    res.status(201).json({ id: lastInsertRowid, text });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: 'Ошибка сервера при обновлении метрики' });
   }
 }
 
-export const deleteIndicatorFromMetric = async (req, res) => {
+export const deleteIndicatorFromMetric = (req, res) => {
   const metricId = Number(req.params.metricId);
   const indicatorId = Number(req.params.indicatorId);
   
   if (Number.isNaN(metricId || Number.isNaN(indicatorId))) {
-    res.status(400).send({ message: 'Параметр "medticId" или "indicatorId" имеет неверный формат или отсутствует'});
+    res.status(400).json({ message: 'Параметр "medticId" или "indicatorId" имеет неверный формат или отсутствует' });
     return;
   }
   
   try {
-    const [ { affectedRows } ] = await connection.query('DELETE FROM metric_indicators WHERE id = ?', [ indicatorId ]);
-
-    if (affectedRows === 0) {
-      res.status(404).json({ message: 'Неверные параметры индикатора метрики'});
+    const { changes } = DB.prepare('DELETE FROM metric_indicators WHERE id = ?').run(indicatorId);
+    console.log(changes);
+    
+    if (changes === 0) {
+      res.status(404).json({ message: `Нет записей в таблицах для индикатора с id ${indicatorId} у метрики с id ${metricId}` });
       return;
     }
 
     res.sendStatus(204);
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: 'Ошибка сервера при обновлении метрики' });
+    res.status(500).json({ message: 'Ошибка сервера при удалении метрики' });
   }
 }
