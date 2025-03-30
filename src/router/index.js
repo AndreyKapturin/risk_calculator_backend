@@ -1,9 +1,9 @@
 import express from 'express';
 import path from 'path';
-import { addMetricToObjectsGroup, deleteMetricFromObjectsGroup, getObjectsGroupById, getObjectsGroupsList, updateIndicatorsValuesForObjectsGroup, updateObjectsGroup } from '../controllers/objectsGroupsController.js';
-import { addIndicatorToMetric, createMetric, deleteIndicatorFromMetric, getAllMetrics, updateMetric } from '../controllers/metricsController.js';
+import * as ObjectsGroupConroller from '../controllers/objectsGroupsController.js';
+import * as MetricController from '../controllers/metricsController.js';
+import * as MetricIndicatorController from '../controllers/indicatorsController.js';
 import { corsMiddleware } from '../middlewares/cors.js';
-import { updateIndicatorText } from '../controllers/indicatorsController.js';
 export const router = express.Router();
 
 router.use(express.static(path.resolve('public')));
@@ -16,15 +16,15 @@ router.get('/', (req, res) => res.sendFile(path.resolve('public', 'index.html'))
 const apiRouter = express.Router();
 router.use('/api-v1', apiRouter);
 
-apiRouter.get('/objects-groups', getObjectsGroupsList);
-apiRouter.get('/objects-groups/:id', getObjectsGroupById);
-apiRouter.patch('/objects-groups/:id', updateObjectsGroup);
-apiRouter.post('/objects-groups/:id/metrics', addMetricToObjectsGroup);
-apiRouter.delete('/objects-groups/:objectsGroupId/metrics/:metricId', deleteMetricFromObjectsGroup);
-apiRouter.patch('/objects-groups/:id/values', updateIndicatorsValuesForObjectsGroup);
-apiRouter.get('/metrics', getAllMetrics);
-apiRouter.post('/metrics', createMetric);
-apiRouter.put('/metrics/:id', updateMetric);
-apiRouter.post('/metrics/:id/indicators', addIndicatorToMetric);
-apiRouter.delete('/metrics/:metricId/indicators/:indicatorId', deleteIndicatorFromMetric);
-apiRouter.patch('/indicators/:id', updateIndicatorText);
+apiRouter.get('/objects-groups', ObjectsGroupConroller.getObjectsGroupsList);
+apiRouter.get('/objects-groups/:id', ObjectsGroupConroller.getObjectsGroupWithMetricsById);
+apiRouter.patch('/objects-groups/:id', ObjectsGroupConroller.updateObjectsGroup);
+apiRouter.post('/objects-groups/:id/metrics', ObjectsGroupConroller.addMetricToObjectsGroup);
+apiRouter.delete('/objects-groups/:objectsGroupId/metrics/:metricId', ObjectsGroupConroller.deleteMetricFromObjectsGroup);
+apiRouter.patch('/objects-groups/:id/values', ObjectsGroupConroller.updateIndicatorsValuesForObjectsGroup);
+apiRouter.get('/metrics', MetricController.getAllMetricsWithIndicators);
+apiRouter.post('/metrics', MetricController.createMetric);
+apiRouter.patch('/metrics/:id', MetricController.updateMetric);
+apiRouter.post('/metrics/:id/indicators', MetricController.addIndicatorToMetric);
+apiRouter.delete('/indicators/:id', MetricIndicatorController.deleteIndicator);
+apiRouter.patch('/indicators/:id', MetricIndicatorController.updateIndicatorText);
