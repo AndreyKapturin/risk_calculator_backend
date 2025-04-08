@@ -1,8 +1,13 @@
 import { DB } from "../database/index.js";
+import { ErrorWithStatusCode } from "../utils/ErrorWithStatusCode.js";
 
-export const create = (metricId, text) => {
-  const { lastInsertRowid } = DB.prepare('INSERT INTO metric_indicators (metric_id, text) VALUES (?, ?)')
-  .run(metricId, text);
+export const create = (metricId, indicator) => {
+  const { text } = indicator;
+
+  if (text === undefined) throw new ErrorWithStatusCode(400, 'Не передан обязательный параметр "text"');
+  if (typeof text !== 'string') throw new ErrorWithStatusCode(400, 'Параметр "text" должен быть строкой');
+
+  const { lastInsertRowid } = DB.prepare('INSERT INTO metric_indicators (metric_id, text) VALUES (?, ?)').run(metricId, text);
   return lastInsertRowid;
 }
 
@@ -19,12 +24,15 @@ export const getAllWithValuesForMetricsAndObjectsGroup = (objectGroupId, metricI
     .all(objectGroupId, metricId);
 }
 
-export const update = (indicatorId, text) => {
+export const update = (indicatorId, indicator) => {
+  const { text } = indicator;
+  if (text === undefined) throw new ErrorWithStatusCode(400, 'Не передан обязательный параметр "text"');
+  if (typeof text !== 'string') throw new ErrorWithStatusCode(400, 'Параметр "text" должен быть строкой');
   const { changes } = DB.prepare('UPDATE metric_indicators SET text = ? WHERE id = ?').run(text, indicatorId);
-  return changes > 0;
+  if (changes === 0) throw new ErrorWithStatusCode(404, `Нет записей в таблицах для индикатора с id ${indicatorId}`);
 }
 
 export const deleteIndicator = (indicatorId) => {
   const { changes } = DB.prepare('DELETE FROM metric_indicators WHERE id = ?').run(indicatorId);
-  return changes > 0;
+  if (changes === 0) throw new ErrorWithStatusCode(404, `Нет записей в таблицах для индикатора с id ${indicatorId}`);
 }
