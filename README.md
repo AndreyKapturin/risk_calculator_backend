@@ -2,4 +2,4 @@
 
 ## Стек
 - Express
-- MySQL
+- SQLite
