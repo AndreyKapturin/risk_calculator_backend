@@ -3,3 +3,4 @@
 ## Стек
 - Express
 - SQLite
+- Joi

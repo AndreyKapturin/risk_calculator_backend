@@ -16,7 +16,7 @@ export const getObjectsGroupWithMetricsById = (req, res) => {
 }
 
 export const updateObjectsGroup = (req, res) => {
-  ObjectsGroupService.update(req.params.id, req.body.data);
+  ObjectsGroupService.update(req.params.id, req.body.objectsGroup);
   res.sendStatus(204);
 }
 

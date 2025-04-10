@@ -3,10 +3,6 @@ import { ErrorWithStatusCode } from "../utils/ErrorWithStatusCode.js";
 
 export const create = (metricId, indicator) => {
   const { text } = indicator;
-
-  if (text === undefined) throw new ErrorWithStatusCode(400, 'Не передан обязательный параметр "text"');
-  if (typeof text !== 'string') throw new ErrorWithStatusCode(400, 'Параметр "text" должен быть строкой');
-
   const { lastInsertRowid } = DB.prepare('INSERT INTO metric_indicators (metric_id, text) VALUES (?, ?)').run(metricId, text);
   return lastInsertRowid;
 }
@@ -26,8 +22,6 @@ export const getAllWithValuesForMetricsAndObjectsGroup = (objectGroupId, metricI
 
 export const update = (indicatorId, indicator) => {
   const { text } = indicator;
-  if (text === undefined) throw new ErrorWithStatusCode(400, 'Не передан обязательный параметр "text"');
-  if (typeof text !== 'string') throw new ErrorWithStatusCode(400, 'Параметр "text" должен быть строкой');
   const { changes } = DB.prepare('UPDATE metric_indicators SET text = ? WHERE id = ?').run(text, indicatorId);
   if (changes === 0) throw new ErrorWithStatusCode(404, `Нет записей в таблицах для индикатора с id ${indicatorId}`);
 }
