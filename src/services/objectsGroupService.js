@@ -1,6 +1,7 @@
 import { DB } from "../database/index.js";
 import * as MetricService from './metricService.js';
 import { ErrorWithStatusCode } from "../utils/ErrorWithStatusCode.js";
+import { convertCamelToSnakeCase } from "../utils/caseConverter.js";
 
 export const getAllForList = () => {
   return DB.prepare('SELECT id, name FROM objects_groups').all();
@@ -28,13 +29,8 @@ export const getObjectsGroupWithMetricsById = (objectsGroupId) => {
 }
 
 export const addMetric = (objectGroupId, metric) => (DB.transaction((objectGroupId, metric) => {
-  if (Number.isNaN(Number(metric.id))) throw new ErrorWithStatusCode(400, 'В теле запроса параметр "id" должен быть числом');
-  if (!Array.isArray(metric.indicators)) throw new ErrorWithStatusCode(400, 'В теле запроса параметр "indicators" должен быть массивом');
-
   DB.prepare('INSERT INTO objects_groups_metrics (objects_group_id, metric_id) VALUES (?, ?)').run(objectGroupId, metric.id);
-  
   const setValueToMetricIndicatorQuery = DB.prepare('INSERT INTO metric_indicators_values (objects_group_id, metric_indicator_id, value) VALUES (?, ?, ?)');
-  
   metric.indicators.forEach(({ id, value }) => {
       setValueToMetricIndicatorQuery.run(objectGroupId, id, value);
   });
@@ -66,17 +62,12 @@ export const deleteMetric = (objectGroupId, metricId) => (DB.transaction((object
 }))(objectGroupId, metricId);
 
 export const update = (objectGroupId, dataForUpdate) => {
-  const keysAndValues = Object.entries(dataForUpdate);
-  if (keysAndValues.length === 0) throw new ErrorWithStatusCode(400, 'Нет данных для обновления');
-  // вспомогательная функция для фильтрации ключей и типов значений входящего объекта
-  // не пропустить параметры не входящие в состав таблицы
-  // проверять соответствие типов
-  
   getObjectsGroupById(objectGroupId);
 
-  const { values, setTemplates } = keysAndValues.reduce((res, [ key, value ]) => {
+  const { values, setTemplates } = Object.entries(dataForUpdate).reduce((res, [ key, value ]) => {
+    const snakeCaseKey = convertCamelToSnakeCase(key);
     res.values.push(value);
-    res.setTemplates.push(`${key} = ?`);
+    res.setTemplates.push(`${snakeCaseKey} = ?`);
     return res;
   }, { values: [], setTemplates: [] });
 
