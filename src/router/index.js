@@ -68,6 +68,6 @@ router.use((error, req, res, next) => {
     status = error.statusCode;
     message = error.message;
   }
-
+  console.error(error);
   res.status(status).send({ message });
 })

@@ -11,7 +11,7 @@ export const getAllMetricsWithIndicators = (req, res) => {
 }
 
 export const updateMetric = (req, res) => {
-  MetricService.update(metricId, req.body.data);
+  MetricService.update(req.params.id, req.body.metric);
   res.sendStatus(200);
 }
 
