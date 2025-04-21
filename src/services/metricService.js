@@ -6,7 +6,7 @@ import * as MetricIndicatorService from "./metricIndicatorService.js";
 export const create = ({ type, name, indicators }) => {
   return (DB.transaction((type, name, indicators) => {
     const { lastInsertRowid: metricId } = DB.prepare('INSERT INTO metrics (type, name) VALUES (?, ?)').run(type, name);
-    indicators.forEach(indicator => MetricIndicatorService.create(metricId, indicator.text));
+    indicators.forEach(indicator => MetricIndicatorService.create(metricId, indicator));
     return metricId;
   }))(type, name, indicators)
 };
