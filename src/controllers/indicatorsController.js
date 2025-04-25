@@ -1,11 +1,21 @@
 import * as MetricIndicatorService from "../services/metricIndicatorService.js";
 
 export const updateIndicatorText = (req, res) => {
-  MetricIndicatorService.update(req.params.id, req.body.indicator);
-  res.sendStatus(204);
+  const updatedIndicator = MetricIndicatorService.updateIndicator(req.params.id, req.body.indicator);
+  if (updatedIndicator) {
+    res.status(201).json(updatedIndicator);
+  } else {
+    res.status(400).json({ message: 'Индикатор не обновлен' });
+  }
 }
 
 export const deleteIndicator = (req, res) => {
-  MetricIndicatorService.deleteIndicator(req.params.id);
-  res.sendStatus(204);
+  const indicatorId = req.params.id;
+  const isDeleted = MetricIndicatorService.deleteIndicator(indicatorId);
+
+  if (isDeleted) {
+    res.status(200).json({ id: indicatorId });
+  } else {
+    res.status(400).json({ message: 'Ошибка при удалении индикатора '});
+  }
 }
