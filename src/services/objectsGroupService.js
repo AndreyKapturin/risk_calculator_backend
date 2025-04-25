@@ -3,17 +3,11 @@ import * as MetricService from './metricService.js';
 import { ErrorWithStatusCode } from "../utils/ErrorWithStatusCode.js";
 import { convertCamelToSnakeCase } from "../utils/caseConverter.js";
 
-export const getAllForList = () => {
+export const getObjectsGroupsList = () => {
   return DB.prepare('SELECT id, name FROM objects_groups').all();
 }
 
 export const getObjectsGroupById = (objectsGroupId) => {
-  const objectsGroup = DB.prepare(`SELECT * FROM objects_groups WHERE id = ?`).get(objectsGroupId);
-  if (!objectsGroup) throw new ErrorWithStatusCode(404, `Группа объектов с id ${objectsGroupId} не найдена`);
-  return objectsGroup;
-}
-
-export const getObjectsGroupWithMetricsById = (objectsGroupId) => {
   const objectsGroup = DB.prepare(`
     SELECT
     id,
@@ -22,13 +16,13 @@ export const getObjectsGroupWithMetricsById = (objectsGroupId) => {
     material_damage_potencial_score as materialDamagePotencialScore
     FROM objects_groups WHERE id = ?`).get(objectsGroupId);
 
-  if (!objectsGroup) throw new ErrorWithStatusCode(404, `Группа объектов с id ${objectsGroupId} не найдена`);
+  if (!objectsGroup) return null;
 
-  objectsGroup.metrics = MetricService.getAllWithIndicatorsForObjectsGroup(objectsGroup.id);
+  objectsGroup.metrics = MetricService.getMetricsByObjectsGroupId(objectsGroup.id);
   return objectsGroup;
 }
 
-export const addMetric = (objectGroupId, metric) => (DB.transaction((objectGroupId, metric) => {
+export const addMetricToObjectsGroup = (objectGroupId, metric) => (DB.transaction((objectGroupId, metric) => {
   DB.prepare('INSERT INTO objects_groups_metrics (objects_group_id, metric_id) VALUES (?, ?)').run(objectGroupId, metric.id);
   const setValueToMetricIndicatorQuery = DB.prepare('INSERT INTO metric_indicators_values (objects_group_id, metric_indicator_id, value) VALUES (?, ?, ?)');
   metric.indicators.forEach(({ id, value }) => {

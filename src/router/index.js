@@ -20,7 +20,7 @@ router.use('/api-v1', apiRouter);
 apiRouter.get('/objects-groups', ObjectsGroupConroller.getObjectsGroupsList);
 apiRouter.get('/objects-groups/:id',
   Validator.getObjectsGroupWithMetricsByIdSchema,
-  ObjectsGroupConroller.getObjectsGroupWithMetricsById
+  ObjectsGroupConroller.getObjectsGroupById
 );
 apiRouter.patch('/objects-groups/:id',
   Validator.updateObjectsGroupSchema ,
@@ -36,9 +36,11 @@ apiRouter.delete('/objects-groups/:objectsGroupId/metrics/:metricId',
 );
 apiRouter.patch('/objects-groups/:id/values',
   Validator.updateIndicatorsValuesForObjectsGroupSchema,
-  ObjectsGroupConroller.updateIndicatorsValuesForObjectsGroup
+  ObjectsGroupConroller.updateIndicatorsValues
 );
-apiRouter.get('/metrics', MetricController.getAllMetricsWithIndicators);
+
+apiRouter.get('/metrics', MetricController.getMetrics);
+apiRouter.get('/metrics/:id', MetricController.getMetricById);
 apiRouter.post('/metrics',
   Validator.createMetricSchema,
   MetricController.createMetric
@@ -47,10 +49,12 @@ apiRouter.patch('/metrics/:id',
   Validator.updateMetricSchema,
   MetricController.updateMetric
 );
+apiRouter.delete('/metrics/:id', MetricController.deleteMetric);
 apiRouter.post('/metrics/:id/indicators',
   Validator.addIndicatorToMetricSchema,
   MetricController.addIndicatorToMetric
 );
+
 apiRouter.delete('/indicators/:id',
   Validator.deleteIndicatorSchema,
   MetricIndicatorController.deleteIndicator

@@ -1,17 +1,16 @@
 import { DB } from "../database/index.js";
-import { ErrorWithStatusCode } from "../utils/ErrorWithStatusCode.js";
 
-export const create = (metricId, indicator) => {
+export const createIndicator = (metricId, indicator) => {
   const { text } = indicator;
   const { lastInsertRowid } = DB.prepare('INSERT INTO metric_indicators (metric_id, text) VALUES (?, ?)').run(metricId, text);
-  return lastInsertRowid;
+  return { text, id: lastInsertRowid };
 }
 
-export const getAllForMetric = (metricId) => {
+export const getIndicatorsByMetricId = (metricId) => {
   return DB.prepare('SELECT id, text FROM metric_indicators mi WHERE mi.metric_id = ?').all(metricId);
 }
 
-export const getAllWithValuesForMetricsAndObjectsGroup = (objectGroupId, metricId) => {
+export const getIndicatorsWithValues = (objectGroupId, metricId) => {
   return DB.prepare(`
     SELECT mi.id, mi.text, miv.value
     FROM metric_indicators mi
@@ -20,13 +19,16 @@ export const getAllWithValuesForMetricsAndObjectsGroup = (objectGroupId, metricI
     .all(objectGroupId, metricId);
 }
 
-export const update = (indicatorId, indicator) => {
+export const updateIndicator = (indicatorId, indicator) => {
   const { text } = indicator;
   const { changes } = DB.prepare('UPDATE metric_indicators SET text = ? WHERE id = ?').run(text, indicatorId);
-  if (changes === 0) throw new ErrorWithStatusCode(404, `Нет записей в таблицах для индикатора с id ${indicatorId}`);
+  if (changes === 0) {
+    return false;
+  }
+  return { id: indicatorId, text };
 }
 
 export const deleteIndicator = (indicatorId) => {
   const { changes } = DB.prepare('DELETE FROM metric_indicators WHERE id = ?').run(indicatorId);
-  if (changes === 0) throw new ErrorWithStatusCode(404, `Нет записей в таблицах для индикатора с id ${indicatorId}`);
+  return changes > 0;
 }
