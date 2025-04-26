@@ -59,7 +59,8 @@ export const addMetricToObjectsGroupSchema = validate(Joi.object({
       id: idSchema,
       indicators: Joi.array().required().min(2).items(Joi.object({
         id: idSchema,
-        value: Joi.number().required()
+        value: Joi.number().required(),
+        text: Joi.string()
       })).required()
     }).required()
   })

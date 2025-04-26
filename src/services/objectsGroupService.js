@@ -55,7 +55,7 @@ export const deleteMetric = (objectGroupId, metricId) => (DB.transaction((object
   if (metricRows === 0 && valuesRows === 0) throw new ErrorWithStatusCode(404, `Нет записей в таблицах для метрики с id ${metricId} у группы с id ${objectGroupId}`);
 }))(objectGroupId, metricId);
 
-export const update = (objectGroupId, dataForUpdate) => {
+export const updateObjectsGroup = (objectGroupId, dataForUpdate) => {
   getObjectsGroupById(objectGroupId);
 
   const { values, setTemplates } = Object.entries(dataForUpdate).reduce((res, [ key, value ]) => {
@@ -68,5 +68,8 @@ export const update = (objectGroupId, dataForUpdate) => {
   values.push(objectGroupId);
 
   const { changes } = DB.prepare(`UPDATE objects_groups SET ${setTemplates.join(', ')} WHERE id = ?`).run(values);
-  if (changes === 0) throw new ErrorWithStatusCode(404, `Значения метрики для группы с id ${objectGroupId} не обновлены`);
+  if (changes === 0) return null;
+  
+  const updatedObjectsGroup = getObjectsGroupById(objectGroupId);
+  return updatedObjectsGroup;
 }

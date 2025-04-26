@@ -23,8 +23,12 @@ export const getObjectsGroupById = (req, res) => {
 }
 
 export const updateObjectsGroup = (req, res) => {
-  ObjectsGroupService.update(req.params.id, req.body.objectsGroup);
-  res.sendStatus(204);
+  const updatedObjectsGroup = ObjectsGroupService.updateObjectsGroup(req.params.id, req.body.objectsGroup);
+  if (!updatedObjectsGroup) {
+    res.status(422).json({ message: 'Группа объектов не обновлена' });
+    return;
+  }
+  res.status(201).json(updatedObjectsGroup);
 }
 
 export const updateIndicatorsValues = (req, res) => {
