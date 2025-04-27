@@ -36,7 +36,12 @@ export const updateIndicatorsValues = (req, res) => {
   res.sendStatus(204);
 }
 
-export const deleteMetricFromObjectsGroup = (req, res) => {
-  ObjectsGroupService.deleteMetric(req.params.objectsGroupId, req.params.metricId);  
-  res.sendStatus(204);
+export const removeMetricFromObjectsGroup = (req, res) => {
+  const isRemoved = ObjectsGroupService.removeMetric(req.params.objectsGroupId, req.params.metricId);
+  console.log(isRemoved)
+  if (isRemoved) {
+    res.status(200).json({ id: req.params.metricId });
+  } else {
+    res.status(422).json({ message: 'Не удалось удалить метрику, либо она уже удалена' });
+  }
 }
