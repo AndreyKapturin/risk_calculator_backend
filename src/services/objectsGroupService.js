@@ -43,7 +43,7 @@ export const updateIndicatorsValues = (objectGroupId, indicators) => (DB.transac
   if (changes === 0) throw new ErrorWithStatusCode(404, `Значения индикаторов для группы объектов с id ${objectGroupId} не найдены`);
 }))(objectGroupId, indicators);
 
-export const deleteMetric = (objectGroupId, metricId) => (DB.transaction((objectGroupId, metricId) => {
+export const removeMetric = (objectGroupId, metricId) => (DB.transaction((objectGroupId, metricId) => {
   const { changes: metricRows } = DB.prepare('DELETE FROM objects_groups_metrics WHERE objects_group_id = ? AND metric_id = ?')
     .run(objectGroupId, metricId);
 
@@ -51,8 +51,7 @@ export const deleteMetric = (objectGroupId, metricId) => (DB.transaction((object
     DELETE FROM metric_indicators_values
     WHERE objects_group_id = ? AND metric_indicator_id IN (SELECT id FROM metric_indicators WHERE metric_id = ?)`)
     .run(objectGroupId, metricId);
-
-  if (metricRows === 0 && valuesRows === 0) throw new ErrorWithStatusCode(404, `Нет записей в таблицах для метрики с id ${metricId} у группы с id ${objectGroupId}`);
+    return metricRows !== 0 || valuesRows !== 0;
 }))(objectGroupId, metricId);
 
 export const updateObjectsGroup = (objectGroupId, dataForUpdate) => {

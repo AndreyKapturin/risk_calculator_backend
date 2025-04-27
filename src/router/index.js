@@ -32,7 +32,7 @@ apiRouter.post('/objects-groups/:id/metrics',
 );
 apiRouter.delete('/objects-groups/:objectsGroupId/metrics/:metricId',
   Validator.deleteMetricFromObjectsGroupSchema,
-  ObjectsGroupConroller.deleteMetricFromObjectsGroup
+  ObjectsGroupConroller.removeMetricFromObjectsGroup
 );
 apiRouter.patch('/objects-groups/:id/values',
   Validator.updateIndicatorsValuesForObjectsGroupSchema,
