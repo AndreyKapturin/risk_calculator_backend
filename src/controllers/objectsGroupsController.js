@@ -32,13 +32,16 @@ export const updateObjectsGroup = (req, res) => {
 }
 
 export const updateIndicatorsValues = (req, res) => {
-  ObjectsGroupService.updateIndicatorsValues(req.params.id, req.body.indicators);
-  res.sendStatus(204);
+  const isUpdated = ObjectsGroupService.updateIndicatorsValues(req.params.id, req.body.indicators);
+  if (isUpdated) {
+    res.status(201).json(req.body.indicators);
+  } else {
+    res.status(422).json({ message: 'Не удалось обновить значение индикаторов' });
+  }
 }
 
 export const removeMetricFromObjectsGroup = (req, res) => {
   const isRemoved = ObjectsGroupService.removeMetric(req.params.objectsGroupId, req.params.metricId);
-  console.log(isRemoved)
   if (isRemoved) {
     res.status(200).json({ id: req.params.metricId });
   } else {
