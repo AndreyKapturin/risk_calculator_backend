@@ -12,10 +12,10 @@ export const getIndicatorsByMetricId = (metricId) => {
 
 export const getIndicatorsWithValues = (objectGroupId, metricId) => {
   return DB.prepare(`
-    SELECT mi.id, mi.text, miv.value
+    SELECT mi.id, mi.text, IFNULL (miv.value, 0) as value
     FROM metric_indicators mi
     LEFT JOIN metric_indicators_values miv ON miv.metric_indicator_id = mi.id AND miv.objects_group_id = ?
-    WHERE mi.metric_id = ? AND miv.value IS NOT NULL;`)
+    WHERE mi.metric_id = ?`)
     .all(objectGroupId, metricId);
 }
 
