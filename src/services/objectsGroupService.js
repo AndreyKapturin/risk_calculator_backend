@@ -40,7 +40,7 @@ export const updateIndicatorsValues = (objectGroupId, indicators) => (DB.transac
     return totalChanges;
   }, 0);
 
-  if (changes === 0) throw new ErrorWithStatusCode(404, `Значения индикаторов для группы объектов с id ${objectGroupId} не найдены`);
+  return changes !== 0;
 }))(objectGroupId, indicators);
 
 export const removeMetric = (objectGroupId, metricId) => (DB.transaction((objectGroupId, metricId) => {
