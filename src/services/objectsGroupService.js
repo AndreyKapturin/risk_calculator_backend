@@ -1,6 +1,5 @@
 import { DB } from "../database/index.js";
 import * as MetricService from './metricService.js';
-import { ErrorWithStatusCode } from "../utils/ErrorWithStatusCode.js";
 import { convertCamelToSnakeCase } from "../utils/caseConverter.js";
 
 export const getObjectsGroupsList = () => {
