@@ -1,5 +1,6 @@
 import Joi from "joi";
 import { ErrorWithStatusCode } from "./ErrorWithStatusCode.js";
+import { text } from "express";
 
 const MESSAGES = {
   'number.base': 'Параметр {#key} по пути {#label} должен быть числом',
@@ -80,6 +81,7 @@ export const updateIndicatorsValuesForObjectsGroupSchema = validate(Joi.object({
   body: Joi.object({
     indicators: Joi.array().required().items(Joi.object({
       id: idSchema,
+      text: Joi.string(),
       value: Joi.number().required(),
     })).required()
   })
