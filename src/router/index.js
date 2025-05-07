@@ -1,16 +1,12 @@
 import express from 'express';
-import path from 'path';
 import * as ObjectsGroupConroller from '../controllers/objectsGroupsController.js';
 import * as MetricController from '../controllers/metricsController.js';
 import * as MetricIndicatorController from '../controllers/indicatorsController.js';
 import { corsMiddleware } from '../middlewares/cors.js';
 export const router = express.Router();
 
-router.use(express.static(path.resolve('public')));
 router.use(corsMiddleware);
 router.use(express.json());
-
-router.get('/', (req, res) => res.sendFile(path.resolve('public', 'index.html')));
 
 const apiRouter = express.Router();
 router.use('/api-v1', apiRouter);
@@ -20,7 +16,7 @@ apiRouter.get('/objects-groups/:id', ObjectsGroupConroller.getObjectsGroupById);
 apiRouter.patch('/objects-groups/:id', ObjectsGroupConroller.updateObjectsGroup);
 apiRouter.post('/objects-groups/:id/metrics', ObjectsGroupConroller.addMetricToObjectsGroup);
 apiRouter.delete('/objects-groups/:objectsGroupId/metrics/:metricId', ObjectsGroupConroller.removeMetricFromObjectsGroup);
-apiRouter.patch('/objects-groups/:id/values',ObjectsGroupConroller.updateIndicatorsValues);
+apiRouter.patch('/objects-groups/:id/values', ObjectsGroupConroller.updateIndicatorsValues);
 
 apiRouter.get('/metrics', MetricController.getMetrics);
 apiRouter.get('/metrics/:id', MetricController.getMetricById);
