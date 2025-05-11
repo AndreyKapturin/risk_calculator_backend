@@ -11,5 +11,6 @@ export const VALIDATE_ERROR_MESSAGES = {
   'any.required': 'Параметр {#key} по пути {#label} отсутствует',
   'any.only': 'Параметр {#key} может принимать значения {#valids}'
 };
-
 export const METRIC_TYPES = ['risk indicator', 'good faith criteria'];
+export const SECRET_KEY = process.env.SECRET_KEY;
+export const ACCESS_TOKEN_LIFETIME_IN_SECOND = Number(process.env.ACCESS_TOKEN_LIFETIME_IN_SECOND);
