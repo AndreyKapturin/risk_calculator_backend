@@ -65,7 +65,7 @@ export const addMetricToObjectsGroup = (req, res) => {
   }
 
   ObjectsGroupService.addMetricToObjectsGroup(req.params.id, req.body.metric);
-  res.sendStatus(201);
+  res.status(201).json(req.body.metric);
 }
 
 export const getObjectsGroupsList = (req, res) => {
